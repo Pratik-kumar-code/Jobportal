@@ -14,7 +14,7 @@ const _dirname=path.resolve();
 const app = express();
 
 const corsOption = {
-    origin: "http://localhost:5173",
+    origin: "https://jobportal-0rz0.onrender.com/",
     credentials: true
 };
 
