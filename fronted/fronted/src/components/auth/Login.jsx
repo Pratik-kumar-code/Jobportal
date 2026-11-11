@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -45,7 +45,7 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Login failed. Please try again.");
     } finally {
       dispatch(setLoading(false));
     }
@@ -55,7 +55,7 @@ const Login = () => {
         if(user){
             navigate("/");
         }
-    },[])
+    },[navigate, user])
 
   return (
     <div>

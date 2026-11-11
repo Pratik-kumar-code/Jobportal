@@ -16,9 +16,6 @@ export const register = async (req, res) => {
     }
 
     const file = req.file;
-    const fileUri = getDataUri(file);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-
     const user = await User.findOne({ email });
 
     if (user) {
@@ -26,6 +23,21 @@ export const register = async (req, res) => {
         message: "User already exists with this email.",
         success: false,
       });
+    }
+
+    let profilePhoto = "";
+    if (file) {
+      if (!file.mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          message: "Profile photo must be an image.",
+          success: false,
+        });
+      }
+      const fileUri = getDataUri(file);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+        resource_type: "image",
+      });
+      profilePhoto = cloudResponse.secure_url;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -37,7 +49,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       role,
       profile: {
-        profilePhoto: cloudResponse.secure_url,
+        profilePhoto,
       },
     });
 
@@ -106,10 +118,7 @@ export const login = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         maxAge: 1 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        path:"/"
+        ...authCookieOptions(),
       })
       .json({
         message: `Welcome back ${user.fullname}`,
@@ -117,19 +126,30 @@ export const login = async (req, res) => {
         success: true,
       });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
   }
 };
 export const logout = async (req, res) => {
   try {
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-      message: "Logged out successfully.",
-      success: true,
-    });
+    return res
+      .status(200)
+      .clearCookie("token", authCookieOptions())
+      .json({
+        message: "Logged out successfully.",
+        success: true,
+      });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
   }
-};
+}
 
 export const updateProfile = async (req, res) => {
   try {
@@ -151,18 +171,25 @@ export const updateProfile = async (req, res) => {
     if (phoneNumber) user.phoneNumber = phoneNumber;
 
     // Update profile details
-    if (bio) user.profile.bio = bio;
+    if (bio !== undefined) user.profile.bio = bio;
 
-    if (skills) {
-      user.profile.skills = skills.split(",").map((skill) => skill.trim());
+    if (skills !== undefined) {
+      user.profile.skills = skills
+        ? skills.split(",").map((skill) => skill.trim()).filter(Boolean)
+        : [];
     }
 
-    // Upload resume to Cloudinary only when a new file is selected
     if (req.file) {
+      if (req.file.mimetype !== "application/pdf") {
+        return res.status(400).json({
+          message: "Resume must be a PDF file.",
+          success: false,
+        });
+      }
       const fileUri = getDataUri(req.file);
 
       const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-        resource_type: "image",
+        resource_type: "raw",
       });
 
       user.profile.resume = cloudResponse.secure_url;
@@ -193,3 +220,13 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+function authCookieOptions() {
+  const isProduction = process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+}

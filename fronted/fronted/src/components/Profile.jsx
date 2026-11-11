@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Navbar from "./shared/Navbar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,9 @@ import { Label } from "@/components/ui/label";
 import AppliedJobTable from "./AppliedJobTable";
 import UpdateProfileDialog from "./UpdateProfileDialog";
 import { useSelector } from "react-redux";
-import store from "@/redux/store";
 import useGetAppliedJobs from "@/hooks/useGetAppliedJobs";
 
 //const skills = ["HTML", "CSS", "JAVASCRIPT", "REACTJS"];
-const isResume = true;
-
 const Profile = () => {
   useGetAppliedJobs();
   const [open, setOpen] = useState(false);
@@ -28,7 +25,7 @@ const Profile = () => {
           <div className="flex items-center gap-4">
             <Avatar className="h-24 w-24">
               <AvatarImage
-                src="https://static.vecteezy.com/system/resources/previews/028/339/965/original/microsoft-icon-logo-symbol-free-png.png"
+                src={user?.profile?.profilePhoto}
                 alt="profile"
               />
             </Avatar>

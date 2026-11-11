@@ -29,6 +29,12 @@ export const applyJob = async (req, res) => {
                 success: false
             })
         }
+        if (job.created_by.toString() === userId) {
+            return res.status(400).json({
+                message: "Recruiters cannot apply to their own job.",
+                success: false
+            });
+        }
         // create a new application
         const newApplication = await Application.create({
             job:jobId,
@@ -42,7 +48,11 @@ export const applyJob = async (req, res) => {
             success:true
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 };
 export const getAppliedJobs = async (req,res) => {
@@ -67,7 +77,11 @@ export const getAppliedJobs = async (req,res) => {
             success:true
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 }
 // admin dekhega kitna user ne apply kiya hai
@@ -87,12 +101,22 @@ export const getApplicants = async (req,res) => {
                 success:false
             })
         };
+        if (job.created_by.toString() !== req.id) {
+            return res.status(404).json({
+                message: "Job not found.",
+                success: false
+            });
+        }
         return res.status(200).json({
-            job, 
-            succees:true
+            job,
+            success: true
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 }
 export const updateStatus = async (req,res) => {
@@ -107,13 +131,19 @@ export const updateStatus = async (req,res) => {
         };
 
         // find the application by applicantion id
-        const application = await Application.findOne({_id:applicationId});
+        const application = await Application.findById(applicationId).populate("job", "created_by");
         if(!application){
             return res.status(404).json({
                 message:"Application not found.",
                 success:false
             })
         };
+        if (!application.job || application.job.created_by.toString() !== req.id) {
+            return res.status(404).json({
+                message: "Application not found.",
+                success: false
+            });
+        }
 
         // update the status
         application.status = status.toLowerCase();
@@ -125,6 +155,10 @@ export const updateStatus = async (req,res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
 }

@@ -1,6 +1,5 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User2, LogOut } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -31,7 +30,7 @@ export const Navbar = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Logout failed. Please try again.");
     }
   };
   return (

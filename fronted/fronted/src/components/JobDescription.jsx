@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -6,7 +6,6 @@ import axios from "axios";
 import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from "@/utils/constant";
 import { setSingleJob } from "@/redux/jobSlice";
 import { useDispatch, useSelector } from "react-redux";
-import store from "@/redux/store";
 import { toast } from "sonner";
 
 const JobDescription = () => {
@@ -41,7 +40,7 @@ const JobDescription = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Could not apply. Please try again.");
     }
   };
 

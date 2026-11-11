@@ -4,10 +4,13 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "nodemon backend/index.js",
-   "build": "npm install && npm install --prefix fronted/fronted && npm run build --prefix fronted/fronted",
-    "start": "nodemon backend/index.js"
+    "build": "npm install --include=dev --prefix fronted/fronted && npm run build --prefix fronted/fronted",
+    "start": "node backend/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,14 +19,16 @@
     "cloudinary": "^2.11.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "datauri": "^4.1.0",
     "dotenv": "^18.0.8",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.11.2",
+    "mongoose": "^9.11.4",
     "multer": "^2.5.0"
   },
+  "overrides": {
+    "body-parser": "^2.4.0"
+  },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "3.1.11"
   }
 }

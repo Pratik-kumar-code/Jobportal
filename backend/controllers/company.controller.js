@@ -29,32 +29,28 @@ export const registerCompany = async (req, res) => {
             success: true
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 }
 export const getCompany = async (req, res) => {
     try {
         const userId = req.id; // logged in user id
         const companies = await Company.find({ userId });
-        if (!companies) {
-            return res.status(404).json({
-                message: "Companies not found.",
-                success: false
-            })
-        }
         return res.status(200).json({
             companies,
             success:true
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 }
 // get company by id
 export const getCompanyById = async (req, res) => {
     try {
         const companyId = req.params.id;
-        const company = await Company.findById(companyId);
+        const company = await Company.findOne({ _id: companyId, userId: req.id });
         if (!company) {
             return res.status(404).json({
                 message: "Company not found.",
@@ -66,22 +62,34 @@ export const getCompanyById = async (req, res) => {
             success: true
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 }
 export const updateCompany = async (req, res) => {
     try {
         const { name, description, website, location } = req.body;
- 
-        const file = req.file;
-        // idhar cloudinary ayega
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-        const logo = cloudResponse.secure_url;
-    
-        const updateData = { name, description, website, location, logo };
 
-        const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        const updateData = { name, description, website, location };
+        if (req.file) {
+            if (!req.file.mimetype.startsWith("image/")) {
+                return res.status(400).json({
+                    message: "Company logo must be an image.",
+                    success: false
+                });
+            }
+            const fileUri = getDataUri(req.file);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                resource_type: "image"
+            });
+            updateData.logo = cloudResponse.secure_url;
+        }
+
+        const company = await Company.findOneAndUpdate(
+            { _id: req.params.id, userId: req.id },
+            updateData,
+            { new: true, runValidators: true }
+        );
 
         if (!company) {
             return res.status(404).json({
@@ -91,10 +99,12 @@ export const updateCompany = async (req, res) => {
         }
         return res.status(200).json({
             message:"Company information updated.",
+            company,
             success:true
         })
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 }
