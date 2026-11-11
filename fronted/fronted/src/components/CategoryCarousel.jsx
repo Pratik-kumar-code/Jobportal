@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Carousel,
   CarouselContent,
@@ -12,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const category = [
-  "Fronted Developer",
+  "Frontend Developer",
   "Backend Developer",
   "Graphic Designer",
   "FullStack Developer",

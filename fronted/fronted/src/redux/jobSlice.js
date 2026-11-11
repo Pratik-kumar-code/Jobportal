@@ -4,6 +4,10 @@ const jobSlice = createSlice({
   name: "job",
   initialState: {
     allJobs: [],
+    jobsLoading: false,
+    jobsError: null,
+    jobsQuery: "",
+    activeJobsRequestId: null,
     allAdminJobs: [],
     singleJob: null,
     searchJobByText: "",
@@ -15,6 +19,30 @@ const jobSlice = createSlice({
     //action
     setAllJobs: (state, action) => {
       state.allJobs = action.payload;
+    },
+    startJobsRequest: (state, action) => {
+      state.jobsLoading = true;
+      state.jobsError = null;
+      state.jobsQuery = action.payload.query;
+      state.activeJobsRequestId = action.payload.requestId;
+    },
+    finishJobsRequest: (state, action) => {
+      if (state.activeJobsRequestId !== action.payload.requestId) return;
+      state.allJobs = action.payload.jobs;
+      state.jobsLoading = false;
+      state.jobsError = null;
+      state.activeJobsRequestId = null;
+    },
+    failJobsRequest: (state, action) => {
+      if (state.activeJobsRequestId !== action.payload.requestId) return;
+      state.jobsLoading = false;
+      state.jobsError = action.payload.message;
+      state.activeJobsRequestId = null;
+    },
+    cancelJobsRequest: (state, action) => {
+      if (state.activeJobsRequestId !== action.payload.requestId) return;
+      state.jobsLoading = false;
+      state.activeJobsRequestId = null;
     },
     setSingleJob: (state, action) => {
       state.singleJob = action.payload;
@@ -29,13 +57,20 @@ const jobSlice = createSlice({
       state.allAppliedJobs = action.payload;
     },
     setSearchedQuery: (state, action) => {
-      state.searchedQuery = action.payload;
+      state.searchedQuery =
+        typeof action.payload === "string"
+          ? action.payload.trim().replace(/\s+/g, " ")
+          : "";
     },
   },
 });
 
 export const {
   setAllJobs,
+  startJobsRequest,
+  finishJobsRequest,
+  failJobsRequest,
+  cancelJobsRequest,
   setSingleJob,
   setAllAdminJobs,
   setSearchJobByText,

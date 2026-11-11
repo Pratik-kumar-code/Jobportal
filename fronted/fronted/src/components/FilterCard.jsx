@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { useDispatch } from "react-redux";
@@ -23,17 +23,16 @@ const FilterCard = () => {
     const [selectedValue, setSelectedValue] = useState("");
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(setSearchedQuery(selectedValue));
-    }, [selectedValue, dispatch]);
-
     return (
         <div className="w-full">
             <div className="flex justify-between items-center">
                 <h1 className="text-lg font-bold">Filter Jobs</h1>
 
                 <button
-                    onClick={() => setSelectedValue("")}
+                    onClick={() => {
+                        setSelectedValue("");
+                        dispatch(setSearchedQuery(""));
+                    }}
                     className="text-sm text-purple-600 hover:underline"
                 >
                     Clear
@@ -50,7 +49,10 @@ const FilterCard = () => {
 
                     <RadioGroup
                         value={selectedValue}
-                        onValueChange={setSelectedValue}
+                        onValueChange={(value) => {
+                            setSelectedValue(value);
+                            dispatch(setSearchedQuery(value));
+                        }}
                     >
                         {data.array.map((item, idx) => {
                             const itemId = `id${index}-${idx}`;

@@ -1,36 +1,23 @@
-import React, { useEffect, useState } from "react";
 import Navbar from "./shared/Navbar";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
+import useGetAllJobs from "@/hooks/useGetAllJobs";
 
 const Jobs = () => {
-  const { allJobs, searchedQuery } = useSelector((store) => store.job);
+  useGetAllJobs();
+  const { allJobs, searchedQuery, jobsLoading, jobsError } = useSelector((store) => store.job);
 
-  const [filterJobs, setFilterJobs] = useState(allJobs);
-
-  useEffect(() => {
-    if (!searchedQuery) {
-      setFilterJobs(allJobs);
-      return;
-    }
-
-    const query = searchedQuery.toLowerCase();
-
-    const filteredJobs = allJobs.filter((job) => {
-      return (
+  const query = searchedQuery.trim().toLowerCase();
+  const filterJobs = query
+    ? allJobs.filter((job) =>
         job.title?.toLowerCase().includes(query) ||
         job.description?.toLowerCase().includes(query) ||
         job.location?.toLowerCase().includes(query) ||
         job.jobType?.toLowerCase().includes(query)
-      );
-    });
-
-    // If matching jobs exist, show filtered jobs.
-    // Otherwise, show all jobs.
-    setFilterJobs(filteredJobs);
-  }, [allJobs, searchedQuery]);
+      )
+    : allJobs;
 
   return (
     <div>
@@ -45,8 +32,14 @@ const Jobs = () => {
 
           {/* Jobs Section */}
           <div className="flex-1 min-w-0 h-[88vh] overflow-y-auto pb-5">
-            {filterJobs.length === 0 ? (
-              <span>No jobs available</span>
+            {jobsLoading ? (
+              <span role="status">Loading jobs...</span>
+            ) : jobsError ? (
+              <span className="text-red-600" role="alert">{jobsError}</span>
+            ) : filterJobs.length === 0 ? (
+              <span>
+                No jobs found{searchedQuery ? ` for "${searchedQuery}"` : ""}.
+              </span>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filterJobs.map((job) => (

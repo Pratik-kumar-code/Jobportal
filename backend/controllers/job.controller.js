@@ -48,7 +48,9 @@ export const postJob = async (req, res) => {
 // student k liye
 export const getAllJobs = async (req, res) => {
     try {
-        const keyword = req.query.keyword || "";
+        const keyword = typeof req.query.keyword === "string"
+            ? req.query.keyword.trim().replace(/\s+/g, " ")
+            : "";
 
         let query = {};
 
@@ -70,8 +72,10 @@ export const getAllJobs = async (req, res) => {
 
         const jobs = await Job.find(query)
             .populate({
-                path: "company"
+                path: "company",
+                select: "name logo"
             })
+            .select("title description salary location jobType position experienceLevel company createdAt")
             .sort({ createdAt: -1 });
 
         return res.status(200).json({

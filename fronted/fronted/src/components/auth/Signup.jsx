@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -9,7 +9,6 @@ import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import store from "@/redux/store";
 import { setLoading } from "@/redux/authSlice";
 import { Loader2 } from "lucide-react";
 const Signup = () => {
@@ -67,9 +66,9 @@ const Signup = () => {
   };
    useEffect(()=>{
           if(user){
-              navigate("/");
+              navigate(user.role === "recruiter" ? "/admin/companies" : "/", { replace: true });
           }
-      },[])
+      },[navigate, user])
   return (
     <div>
       <Navbar />

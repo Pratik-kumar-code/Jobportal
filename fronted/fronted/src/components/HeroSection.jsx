@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -10,7 +10,8 @@ const HeroSection = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const searchJobHandler = () => {
+  const searchJobHandler = (event) => {
+    event?.preventDefault();
     dispatch(setSearchedQuery(query));
     navigate("/browse");
   };
@@ -29,20 +30,24 @@ const HeroSection = () => {
           Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsum beatae
           impedit facere at explicabo.
         </p>
-        <div className="flex w-[40%] shadow-lg border-gray-200 pl-3 rounded-full items-center gap-4 mx-auto">
+        <form
+          onSubmit={searchJobHandler}
+          className="flex w-[40%] shadow-lg border-gray-200 pl-3 rounded-full items-center gap-4 mx-auto"
+        >
           <input
             type="text"
             placeholder="Find your dream jobs"
             onChange={(e) => setQuery(e.target.value)}
+            value={query}
             className="text-black putline-none border-none w-full"
           />
           <Button
-            onClick={searchJobHandler}
+            type="submit"
             className="bg-[#6A38C2] rounded-r-full text-white hover:bg-gray-800"
           >
             <Search className="h-5 w-5 text-white" />
           </Button>
-        </div>
+        </form>
       </div>
     </div>
   );
