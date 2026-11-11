@@ -1,37 +1,29 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import dotenv from "dotenv";
 import connectDB, { isDbConnected } from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import companyRoute from "./routes/company.route.js";
 import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
+import createCorsMiddleware from "./middlewares/cors.js";
 import path from "path";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
-const _dirname = path.resolve();
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const frontendDist = path.join(projectRoot, "fronted", "fronted", "dist");
 const app = express();
+app.set("trust proxy", 1);
 
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173")
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean)
     .map((origin) => new URL(origin).origin);
+allowedOrigins.push("http://localhost:5173");
 
-const corsOption = {
-    origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-        const error = new Error("Origin is not allowed by CORS");
-        error.status = 403;
-        return callback(error);
-    },
-    credentials: true
-};
-
-app.use(cors(corsOption));
+app.use(createCorsMiddleware(allowedOrigins));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -55,9 +47,12 @@ app.use("/api", (req, res) => {
     return res.status(404).json({ message: "API route not found.", success: false });
 });
 
-app.use(express.static(path.join(_dirname, "fronted", "fronted", "dist")));
+app.use(express.static(frontendDist));
 app.get("/{*splat}", (req, res) => {
-    res.sendFile(path.resolve(_dirname, "fronted", "fronted", "dist", "index.html"));
+    if (path.extname(req.path)) {
+        return res.status(404).type("text/plain").send("Asset not found.");
+    }
+    return res.sendFile(path.join(frontendDist, "index.html"));
 });
 
 app.use((error, req, res, next) => {
@@ -89,6 +84,6 @@ const startServer = async () => {
 };
 
 startServer().catch((error) => {
-    console.error("Unable to start server:", error);
+    console.error("Unable to start server:", error.message);
     process.exit(1);
 });
