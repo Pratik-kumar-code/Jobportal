@@ -58,7 +58,7 @@ export const Navbar = () => {
             ) : (
               <>
                 <li>
-                  <Link to="/">Home</Link>
+                  <Link to="/home">Home</Link>
                 </li>
                 <li>
                   <Link to="/jobs">Jobs</Link>

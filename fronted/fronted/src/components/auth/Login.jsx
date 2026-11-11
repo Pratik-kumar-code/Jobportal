@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -20,7 +20,7 @@ const Login = () => {
     role: "student",
   });
 
-  const { loading,user } = useSelector((store) => store.auth);
+  const { loading } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const changeEventHandler = (e) => {
@@ -40,6 +40,9 @@ const Login = () => {
       });
       if (res.data.success) {
         dispatch(setUser(res.data.user));
+        navigate(res.data.user.role === "recruiter" ? "/admin/companies" : "/home", {
+          replace: true,
+        });
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -49,12 +52,6 @@ const Login = () => {
       dispatch(setLoading(false));
     }
   };
-
-   useEffect(()=>{
-        if(user){
-            navigate(user.role === "recruiter" ? "/admin/companies" : "/", { replace: true });
-        }
-    },[navigate, user])
 
   return (
     <div>
@@ -96,14 +93,14 @@ const Login = () => {
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="student" id="r1" />
                 <Label htmlFor="r1" className="text-black">
-                  Student
+                  Student Login
                 </Label>
               </div>
 
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="recruiter" id="r2" />
                 <Label htmlFor="r2" className="text-black">
-                  Recruiter
+                  Recruiter Login
                 </Label>
               </div>
             </RadioGroup>

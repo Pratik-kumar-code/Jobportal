@@ -1,5 +1,4 @@
 
-import React from "react";
 import { BriefcaseBusiness, Mail, Phone } from "lucide-react";
 
 const Footer = () => {
@@ -29,7 +28,7 @@ const Footer = () => {
 
             <ul className="space-y-2 text-sm text-gray-500">
               <li>
-                <a href="/" className="hover:text-[#6A38C2]">
+                <a href="/home" className="hover:text-[#6A38C2]">
                   Home
                 </a>
               </li>
@@ -87,4 +86,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

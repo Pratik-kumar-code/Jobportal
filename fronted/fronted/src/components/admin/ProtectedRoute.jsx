@@ -5,7 +5,7 @@ const ProtectedRoute = ({children}) => {
     const {user} = useSelector(store=>store.auth);
 
     if (!user || user.role !== "recruiter") {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/login" replace />;
     }
 
     return children;

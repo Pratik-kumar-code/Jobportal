@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -21,7 +21,7 @@ const Signup = () => {
     file: "",
   });
 
-  const {loading,user}=useSelector(store=>store.auth);
+  const {loading}=useSelector(store=>store.auth);
   const dispatch=useDispatch();
   const navigate=useNavigate();
 
@@ -64,11 +64,6 @@ const Signup = () => {
       dispatch(setLoading(false));
     }
   };
-   useEffect(()=>{
-          if(user){
-              navigate(user.role === "recruiter" ? "/admin/companies" : "/", { replace: true });
-          }
-      },[navigate, user])
   return (
     <div>
       <Navbar />

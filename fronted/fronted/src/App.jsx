@@ -18,7 +18,7 @@ import ProtectedRoute from "./components/admin/ProtectedRoute";
 const appRouter = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Login />,
   },
   {
     path: "/login",
@@ -27,6 +27,10 @@ const appRouter = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
   },
   {
     path: "/jobs",
