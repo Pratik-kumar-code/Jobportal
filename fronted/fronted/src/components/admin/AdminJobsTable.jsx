@@ -82,7 +82,7 @@ const AdminJobsTable = () => {
                   >
                     <button
                       type="button"
-                      onClick={() => navigate(`/admin/jobs/${job._id}`)}
+                      onClick={() => navigate(`/admin/companies/${job._id}`)}
                       className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer whitespace-nowrap"
                     >
                       <Edit2 className="h-4 w-4 shrink-0" />
